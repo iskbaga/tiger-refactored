@@ -75,7 +75,7 @@ class Dataset:
         LOGGER.info(f'Test dataset size: {len(test_dataset)}')
         LOGGER.info(f'Max item id: {max_item_id}')
 
-        train_sampler = TrainSampler(train_dataset, sampler_type, max_sequence_length=max_sequence_length)
+        train_sampler = TrainSampler(train_dataset, sampler_type, max_sequence_length=max_sequence_length, num_items=max_item_id + 1)
         validation_sampler = EvalSampler(validation_dataset, max_sequence_length=max_sequence_length)
         test_sampler = EvalSampler(test_dataset, max_sequence_length=max_sequence_length)
 

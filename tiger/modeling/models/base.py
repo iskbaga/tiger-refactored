@@ -10,27 +10,12 @@ class TorchModel(nn.Module):
                 if 'norm' in key:
                     nn.init.ones_(value.data)
                 else:
-                    nn.init.trunc_normal_(
-                        value.data,
-                        std=initializer_range,
-                        a=-2 * initializer_range,
-                        b=2 * initializer_range
-                    )
+                    nn.init.normal_(value.data, mean=0.0, std=initializer_range)
             elif 'bias' in key:
                 nn.init.zeros_(value.data)
             elif 'codebook' in key:
-                nn.init.trunc_normal_(
-                    value.data,
-                    std=initializer_range,
-                    a=-2 * initializer_range,
-                    b=2 * initializer_range
-                )
+                nn.init.normal_(value.data, mean=0.0, std=initializer_range)
             elif 'bos_embedding' in key:
-                nn.init.trunc_normal_(
-                    value.data,
-                    std=initializer_range,
-                    a=-2 * initializer_range,
-                    b=2 * initializer_range,
-                )
+                nn.init.normal_(value.data, mean=0.0, std=initializer_range)
             else:
                 raise ValueError(f'Unknown transformer weight: {key}')

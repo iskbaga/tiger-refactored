@@ -39,7 +39,7 @@ def main():
     train_dataloader = DataLoader(
         dataset=train_sampler,
         batch_size=config['dataloader']['train_batch_size'],
-        drop_last=True,
+        drop_last=False,
         shuffle=True,
         collate_fn=batch_processor
     )
@@ -86,7 +86,7 @@ def main():
         output_prefix='loss'
     )
 
-    optimizer = torch.optim.AdamW(
+    optimizer = torch.optim.Adam(
         model.parameters(),
         lr=config['optimizer']['lr'],
     )

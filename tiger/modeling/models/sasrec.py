@@ -24,6 +24,7 @@ class SasRecModel(TorchModel):
         self._num_items = num_items
         self._num_heads = num_heads
         self._embedding_dim = embedding_dim
+        self._max_sequence_length = max_sequence_length
 
         self._item_embeddings = nn.Embedding(
             num_embeddings=num_items,
@@ -35,6 +36,9 @@ class SasRecModel(TorchModel):
         )
 
         self._topk_k = topk_k
+
+        self._embedding_layer_norm = nn.LayerNorm(embedding_dim, eps=layer_norm_eps)
+        self._embedding_dropout = nn.Dropout(dropout)
 
         transformer_encoder_layer = nn.TransformerEncoderLayer(
             d_model=embedding_dim,
@@ -77,16 +81,13 @@ class SasRecModel(TorchModel):
                 index=all_positive_sample_events[..., None]
             )[:, 0]  # (all_batch_items)
 
+            negative_sample_events = inputs['negative.ids']  # (all_batch_events)
+
             negative_scores = torch.gather(
                 input=all_scores,
                 dim=1,
-                index=torch.randint(
-                    low=0,
-                    high=all_scores.shape[1],
-                    size=all_positive_sample_events.shape,
-                    device=all_positive_sample_events.device
-                )[..., None]
-            )[:, 0]  # (all_batch_items)
+                index=negative_sample_events[..., None]
+            )[:, 0]  # (all_batch_events)
 
             return {
                 'positive_scores': positive_scores,
@@ -124,7 +125,7 @@ class SasRecModel(TorchModel):
 
         embeddings, mask = create_masked_tensor(
             data=embeddings,
-            lengths=lengths
+            lengths=lengths,
         )  # (batch_size, seq_len, embedding_dim), (batch_size, seq_len)
 
         batch_size = mask.shape[0]
@@ -134,16 +135,16 @@ class SasRecModel(TorchModel):
             start=0, end=seq_len, device=mask.device
         )[None].expand(batch_size, -1)  # (batch_size, seq_len)
 
-        position_embeddings = self._position_embeddings(positions)   # (batch_size, seq_len, embedding_dim)
-        position_embeddings[~mask] = 0
+        position_embeddings = self._position_embeddings(positions)
 
-        embeddings = embeddings + position_embeddings  # (batch_size, seq_len, embedding_dim)
-        embeddings[~mask] = 0
-        causal_mask = nn.Transformer.generate_square_subsequent_mask(seq_len).bool().to(embeddings.device)  # (seq_len, seq_len)
+        embeddings = embeddings + position_embeddings
+        embeddings = self._embedding_layer_norm(embeddings)
+        embeddings = self._embedding_dropout(embeddings)
+        causal_mask = nn.Transformer.generate_square_subsequent_mask(seq_len).bool().to(embeddings.device)
         embeddings = self._encoder(
             src=embeddings,
             mask=causal_mask,
             src_key_padding_mask=~mask
-        )  # (batch_size, seq_len, embedding_dim)
+        )
 
         return embeddings, mask
