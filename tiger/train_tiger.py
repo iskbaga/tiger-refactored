@@ -130,8 +130,8 @@ def main():
         step_cnt=config.get('train_steps_num'),
         best_metric='ndcg@20',
         epochs_threshold=config.get('early_stopping_threshold', 40),
-        valid_step=256,
-        eval_step=256
+        valid_step=768,
+        eval_step=768
     )
 
     best_checkpoint = trainer.train()
