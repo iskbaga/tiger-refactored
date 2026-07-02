@@ -28,13 +28,11 @@ data/
 │   ├── content_embeddings.pkl
 │   ├── index_rqkmeans.json
 │   ├── index_rqvae.json
-│   ├── inter_new.json
 │   └── inter.json
 ├── Sport/
 │   ├── content_embeddings.pkl
 │   ├── index_rqkmeans.json
 │   ├── index_rqvae.json
-│   ├── inter_new.json
 │   ├── inter.json
 │   └── Sports_and_Outdoors_5.json
 └── Toys/
@@ -47,7 +45,7 @@ data/
 
 Metadata JSON files are not included and precomputed content embeddings are provided for all datasets.
 
-If you want to work with raw data from the Amazon Review dataset, you can download it from the official source: [https://jmcauley.ucsd.edu/data/amazon/](https://jmcauley.ucsd.edu/data/amazon/). All data processing and preparation scripts are available in the `notebooks` folder.
+If you want to work with raw data from the Amazon Review dataset, download `reviews_Beauty_5.json.gz` and `meta_Beauty.json.gz` from [https://snap.stanford.edu/data/amazon/productGraph/categoryFiles/](https://snap.stanford.edu/data/amazon/productGraph/categoryFiles/), and place them in `data/Beauty/` as `Beauty_5.json` and `metadata.json`. All data processing and preparation scripts are available in the `notebooks` folder.
 
 ## Requirements
 
